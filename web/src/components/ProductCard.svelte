@@ -1,11 +1,18 @@
 <script lang="ts">
+    import { SERVER_URL } from "$lib/config";
     import type { Product } from "$types/product";
     import { Icon, PlusCircle } from "svelte-hero-icons";
 
     let { id, image, name, description, price }: Product = $props();
 
-    const addToCart = () => {
-        console.log("Add " + id);
+    const addToCart = async () => {
+        await fetch(`${SERVER_URL}/api/add-to-cart`, {
+            credentials: "include",
+            method: "POST",
+            body: id,
+        });
+
+        alert(`Added ${name} to cart!`);
     };
 </script>
 

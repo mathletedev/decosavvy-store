@@ -53,6 +53,7 @@
                 x={menuAnchor.offsetLeft + menuAnchor.offsetWidth / 2}
                 close={closeMenu}
             >
+                <a href="/cart">My cart</a>
                 <a href={`${SERVER_URL}/signout/google`}>Sign out</a>
             </AppBarMenu>
         {/if}

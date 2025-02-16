@@ -29,7 +29,7 @@ func (d *Database) CreateUser(email string, avatar string) (string, error) {
 func (d *Database) ReadUser(id string) (*models.User, error) {
 	rows, err := d.Query(
 		context.Background(),
-		"SELECT email, avatar FROM users WHERE id=$1;",
+		"SELECT email, avatar, cart FROM users WHERE id=$1;",
 		id,
 	)
 	if err != nil {
@@ -43,7 +43,7 @@ func (d *Database) ReadUser(id string) (*models.User, error) {
 	}
 
 	var user models.User
-	err = rows.Scan(&user.Email, &user.Avatar)
+	err = rows.Scan(&user.Email, &user.Avatar, &user.Cart)
 
 	return &user, nil
 }

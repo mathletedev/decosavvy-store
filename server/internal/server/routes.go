@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -25,6 +26,8 @@ func (s *Server) RegisterRoutes(allowedOrigins []string) http.Handler {
 	r.Get("/api/hello", s.HandleHello)
 	r.Get("/api/me", s.HandleMe)
 	r.Get("/api/products", s.HandleProducts)
+	r.Get("/api/cart", s.HandleCart)
+	r.Post("/api/add-to-cart", s.HandleAddToCart)
 
 	r.Get("/auth/{provider}", s.HandleAuth)
 	r.Get("/auth/{provider}/callback", s.HandleAuthCallback)
@@ -63,6 +66,51 @@ func (s *Server) HandleProducts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
+}
+
+func (s *Server) HandleCart(w http.ResponseWriter, r *http.Request) {
+	id, err := gothic.GetFromSession("user", r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	user, err := s.db.ReadUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	names, err := s.db.ReadCart(user.Cart)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(names)
+}
+
+func (s *Server) HandleAddToCart(w http.ResponseWriter, r *http.Request) {
+	id, err := gothic.GetFromSession("user", r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	_, err = s.db.ReadUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	s.db.AddToCart(id, string(body))
 }
 
 func (s *Server) HandleAuth(w http.ResponseWriter, r *http.Request) {
