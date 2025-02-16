@@ -1,4 +1,5 @@
 import { SERVER_URL } from "$lib/config";
+import type { Product } from "$types/product";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch }) => {
@@ -8,9 +9,7 @@ export const load: PageLoad = async ({ fetch }) => {
 
     const data = await res.json();
 
-    console.log(data);
-
     return {
-        cart: data as string[],
+        products: data as Product[],
     };
 };

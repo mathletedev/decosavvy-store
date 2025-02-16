@@ -16,7 +16,7 @@
     };
 </script>
 
-<div class="flex w-64 flex-col gap-2 bg-red-100 p-4">
+<div class="flex w-64 flex-col gap-2 bg-stone-200 p-4">
     <img src={image} alt="item" />
     <h3 class="text-xl font-bold text-amber-950">{name}</h3>
     <p>{description}</p>

@@ -28,6 +28,7 @@ func (s *Server) RegisterRoutes(allowedOrigins []string) http.Handler {
 	r.Get("/api/products", s.HandleProducts)
 	r.Get("/api/cart", s.HandleCart)
 	r.Post("/api/add-to-cart", s.HandleAddToCart)
+	r.Post("/api/remove-from-cart", s.HandleRemoveFromCart)
 
 	r.Get("/auth/{provider}", s.HandleAuth)
 	r.Get("/auth/{provider}/callback", s.HandleAuthCallback)
@@ -75,20 +76,20 @@ func (s *Server) HandleCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.db.ReadUser(id)
+	_, err = s.db.ReadUser(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	names, err := s.db.ReadCart(user.Cart)
+	products, err := s.db.ReadCart(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(names)
+	json.NewEncoder(w).Encode(products)
 }
 
 func (s *Server) HandleAddToCart(w http.ResponseWriter, r *http.Request) {
@@ -111,6 +112,28 @@ func (s *Server) HandleAddToCart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.db.AddToCart(id, string(body))
+}
+
+func (s *Server) HandleRemoveFromCart(w http.ResponseWriter, r *http.Request) {
+	id, err := gothic.GetFromSession("user", r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	_, err = s.db.ReadUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	s.db.RemoveFromCart(id, string(body))
 }
 
 func (s *Server) HandleAuth(w http.ResponseWriter, r *http.Request) {
