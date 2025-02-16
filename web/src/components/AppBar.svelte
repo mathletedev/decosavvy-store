@@ -24,7 +24,7 @@
 </script>
 
 <nav class="flex h-16 items-center bg-amber-950 pr-8">
-    <a class="w-80 text-center text-2xl text-white" href="/">Decosavvy</a>
+    <a class="w-80 text-center text-2xl text-white" href="/">DecoSavvy</a>
     <div class="relative ml-8 w-96">
         <input
             class="w-full rounded-full bg-white py-2 pl-10"

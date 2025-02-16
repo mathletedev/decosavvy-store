@@ -24,6 +24,7 @@ func (s *Server) RegisterRoutes(allowedOrigins []string) http.Handler {
 
 	r.Get("/api/hello", s.HandleHello)
 	r.Get("/api/me", s.HandleMe)
+	r.Get("/api/products", s.HandleProducts)
 
 	r.Get("/auth/{provider}", s.HandleAuth)
 	r.Get("/auth/{provider}/callback", s.HandleAuthCallback)
@@ -51,6 +52,17 @@ func (s *Server) HandleMe(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
+}
+
+func (s *Server) HandleProducts(w http.ResponseWriter, r *http.Request) {
+	products, err := s.db.ReadProducts()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(products)
 }
 
 func (s *Server) HandleAuth(w http.ResponseWriter, r *http.Request) {
