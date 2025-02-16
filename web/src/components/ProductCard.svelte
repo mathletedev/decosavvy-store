@@ -3,9 +3,18 @@
     import type { Product } from "$types/product";
     import { Icon, PlusCircle } from "svelte-hero-icons";
 
-    let { id, image, name, description, price }: Product = $props();
+    interface Props extends Product {
+        signedIn: boolean;
+    }
+
+    let { id, image, name, description, price, signedIn }: Props = $props();
 
     const addToCart = async () => {
+        if (!signedIn) {
+            alert("Please sign in!");
+            return;
+        }
+
         await fetch(`${SERVER_URL}/api/add-to-cart`, {
             credentials: "include",
             method: "POST",
